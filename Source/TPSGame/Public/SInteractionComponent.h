@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
 #include "SInteractionComponent.generated.h"
 
+
+class ASCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TPSGAME_API USInteractionComponent : public UActorComponent
@@ -18,6 +22,9 @@ public:
 public:	
 	// Sets default values for this component's properties
 	USInteractionComponent();
+
+	
+	
 
 protected:
 	// Called when the game starts

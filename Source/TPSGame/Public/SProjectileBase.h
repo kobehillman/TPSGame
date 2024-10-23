@@ -9,6 +9,9 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
+class UAudioComponent;
+class USoundBase;
+class UCameraShakeBase;
 
 UCLASS(Abstract) // ABSTRACT marks this class as incomplete, keeping this out of certain dropdown windows like SpawnActor in UE
 class TPSGAME_API ASProjectileBase : public AActor
@@ -22,6 +25,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* SphereComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	UAudioComponent* AudioComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	USoundBase* ImpactSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Shake")
+	TSubclassOf<UCameraShakeBase> ImpactShake;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* MoveComp;
@@ -41,6 +53,10 @@ protected:
 	void Explode();
 
 	virtual void PostInitializeComponents() override;
+
+	float ImpactShakeInnerRadius;
+
+	float ImpactShakeOuterRadius;
 
 
 public:	

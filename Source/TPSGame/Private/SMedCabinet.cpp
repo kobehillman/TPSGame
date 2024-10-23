@@ -22,6 +22,7 @@ ASMedCabinet::ASMedCabinet()
 void ASMedCabinet::Interact_Implementation(APawn* InstigatorPawn)
 {
 	DoorMesh->SetRelativeRotation(FRotator(0, TargetYaw, 0));
+
 }
 
 

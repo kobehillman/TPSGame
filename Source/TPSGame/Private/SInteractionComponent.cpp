@@ -5,6 +5,9 @@
 
 #include "SGameplayInterface.h"
 #include "DrawDebugHelpers.h"
+#include "SCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
@@ -43,11 +46,15 @@ void USInteractionComponent::PrimaryInteract()
 
 	AActor* MyOwner = GetOwner();
 
+	/*FVector CamLocation = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+	FRotator CamRotation = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetOwningPlayerController()->GetControlRotation();*/
+
+
 	FVector EyeLocation;
 	FRotator EyeRotation;
 	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-	FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
+	FVector End = EyeLocation + (EyeRotation.Vector() * 500);
 
 	/*FHitResult Hit;
 	bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);*/
