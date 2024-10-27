@@ -29,6 +29,7 @@ UItemBase* UItemBase::CreateItemCopy() const
 	ItemCopy->NumericData = this->NumericData;
 	ItemCopy->ItemStatistics = this->ItemStatistics;
 	ItemCopy->AssetData = this->AssetData;
+	
 	ItemCopy->bIsCopy = true;
 
 	return ItemCopy;

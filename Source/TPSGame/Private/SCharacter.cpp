@@ -18,6 +18,7 @@
 #include "Logging/LogMacros.h"
 #include "DrawDebugHelpers.h"
 #include "InventoryComponent.h"
+#include "Pickup.h"
 
 
 // Sets default values
@@ -58,7 +59,7 @@ ASCharacter::ASCharacter()
 void ASCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
+	
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
@@ -112,11 +113,12 @@ void ASCharacter::Look(const FInputActionValue& Value)
 
 void ASCharacter::PrimaryAttack()
 {
-
-	StartAttackEffects();
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
-
+	if (!HUD->bIsMenuVisible)
+	{
+		StartAttackEffects();
+        
+		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
+	}
 }
 
 
@@ -144,9 +146,13 @@ void ASCharacter::Jump()
 
 void ASCharacter::Teleport()
 {
-	StartAttackEffects();
-
-	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Teleport_TimeElapsed, AttackAnimDelay);
+	if (!HUD->bIsMenuVisible)
+	{
+		StartAttackEffects();
+        
+		GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Teleport_TimeElapsed, AttackAnimDelay);
+	}
+	
 }
 
 
@@ -158,9 +164,13 @@ void ASCharacter::Teleport_TimeElapsed()
 
 void ASCharacter::Blackhole_Attack()
 {
-	StartAttackEffects();
-
-	GetWorldTimerManager().SetTimer(TimerHandle_Blackhole, this, &ASCharacter::Blackhole_TimeElapsed, AttackAnimDelay);
+	if (!HUD->bIsMenuVisible)
+	{
+		StartAttackEffects();
+        
+		GetWorldTimerManager().SetTimer(TimerHandle_Blackhole, this, &ASCharacter::Blackhole_TimeElapsed, AttackAnimDelay);
+	}
+	
 }
 
 
@@ -168,10 +178,6 @@ void ASCharacter::Blackhole_TimeElapsed()
 {
 	SpawnProjectile(BlackholeProjectileClass);
 }
-
-
-
-
 
 
 void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
@@ -227,7 +233,7 @@ void ASCharacter::PerformInteractionCheck()
 
 	if (LookDirection > 0)
 	{
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.0f, 0, 2.0f);
+		// DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.0f, 0, 2.0f);
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
@@ -343,6 +349,35 @@ void ASCharacter::Interact()
 	}
 }
 
+void ASCharacter::ToggleMenu()
+{
+	HUD->ToggleMenu();
+}
+
+
+void ASCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
+{
+	if (PlayerInventory->FindMatchingItem(ItemToDrop))
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.bNoFail = true;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		const FVector SpawnLocation { GetActorLocation() + (GetActorForwardVector() * 50.0f)};
+
+		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+		APickup* Pickup = GetWorld()->SpawnActor<APickup>(APickup::StaticClass(), SpawnTransform, SpawnParams);
+		Pickup->InitializeDrop(ItemToDrop, RemovedQuantity);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item to drop was somehow null!"));
+	}
+}
 
 void ASCharacter::UpdateInteractionWidget() const
 {
@@ -351,7 +386,6 @@ void ASCharacter::UpdateInteractionWidget() const
 		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
 	}
 }
-
 
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
@@ -367,13 +401,6 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 		DisableInput(PC);
 	}
 }
-
-
-void ASCharacter::OpenInventory()
-{
-	
-}
-
 
 
 void ASCharacter::PrimaryInteract()
@@ -415,7 +442,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ASCharacter::EndInteract);
 		EnhancedInputComponent->BindAction(TeleAction, ETriggerEvent::Triggered, this, &ASCharacter::Teleport);
 		EnhancedInputComponent->BindAction(HoleAction, ETriggerEvent::Triggered, this, &ASCharacter::Blackhole_Attack);
-		EnhancedInputComponent->BindAction(ViewInventory, ETriggerEvent::Triggered, this, &ASCharacter::OpenInventory);
+		EnhancedInputComponent->BindAction(ViewInventory, ETriggerEvent::Triggered, this, &ASCharacter::ToggleMenu);
 	}
 
 }

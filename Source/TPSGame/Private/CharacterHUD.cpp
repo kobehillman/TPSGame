@@ -4,6 +4,7 @@
 #include "CharacterHUD.h"
 #include "MainMenu.h"
 #include "InteractionWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 ACharacterHUD::ACharacterHUD()
 {
@@ -45,6 +46,25 @@ void ACharacterHUD::HideMenu()
 	{
 		bIsMenuVisible = false;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ACharacterHUD::ToggleMenu()
+{
+	if (bIsMenuVisible)
+	{
+		HideMenu();
+		const FInputModeGameOnly InputMode;
+		GetOwningPlayerController()->SetInputMode(InputMode);
+		GetOwningPlayerController()->SetShowMouseCursor(false);
+	}
+	else
+	{
+		DisplayMenu();
+		const FInputModeGameAndUI InputMode;
+		GetOwningPlayerController()->SetInputMode(InputMode);
+		GetOwningPlayerController()->SetShowMouseCursor(true);
+		
 	}
 }
 

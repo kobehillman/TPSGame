@@ -9,6 +9,7 @@
 #include "SCharacter.generated.h"
 
 
+class UItemBase;
 class UInventoryComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -83,6 +84,10 @@ protected:
 
 	FTimerHandle TimerHandle_Blackhole;
 
+	// timeline properties used for camera aiming transition
+
+	
+
 	float AttackAnimDelay;
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
@@ -120,8 +125,6 @@ protected:
 
 	void StartAttackEffects();
 
-	void OpenInventory();
-
 	void PerformInteractionCheck();
 
 	void FoundInteractable(AActor* NewInteractable);
@@ -133,6 +136,8 @@ protected:
 	void EndInteract();
 
 	void Interact();
+
+	void ToggleMenu();
 
 
 
@@ -148,6 +153,8 @@ public:
 	FORCEINLINE UInventoryComponent* GetInventory() const { return PlayerInventory; };
 
 	void UpdateInteractionWidget() const;
+
+	void DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop);
 
 protected:
 	UPROPERTY(VisibleAnywhere)
